@@ -3,7 +3,25 @@
 #include <string>
 #include <ctime>
 #include <fstream>
+#include <thread>
+#include <chrono>
+
 using namespace std;
+
+    void clearScreen(){
+        #ifdef _WIN32
+            system("cls");
+        #else
+            system("clear");
+        #endif
+    }
+
+    void typeText(string text){
+        for(char c : text){
+            cout << c << flush;
+            this_thread::sleep_for(chrono::milliseconds(100));
+        }
+    }
 
 // Part 1 A
 const int NUM_BANKS = 4;
@@ -135,6 +153,10 @@ vector<double>& balances,
 vector<string>& userBanks,        
 vector<string>& accountTypes);
 
+vector<string> admin = {"Mark Angelo C. Panis | Benedict B. Eborde | Lee Mhiguel Ferrer"};
+vector<string> adminUser = {"admin"};
+string adminPasscode = "6767";
+
 // =======PART 6========= //
 
 // Recursive function to calculate number of bills for a given amount
@@ -187,7 +209,7 @@ int main () {
     vector<double> transactionAmounts;
     vector<double> transactionFees;
     vector<int> transactionQuantities;
-    
+
     addAccount(cardNumbers, encodedPINs, balances, userBanks, accountTypes, "1234567890123456", "encodedPIN: 1234", 10000, "BDO", "Local");
     logTransaction(transactionTypes, transactionAmounts, transactionFees,
     transactionQuantities, cardNumbers[0], "Deposit", 5000, 0);
@@ -195,12 +217,13 @@ int main () {
     login(cardNumbers, encodedPINs, balances, userBanks, accountTypes,
     transactionTypes, transactionAmounts, transactionFees, transactionQuantities);
 
+
     // Part 6 Fstream clear shinanigans Vector Clear
     cardNumbers.clear();
     encodedPINs.clear();
     balances.clear();
     userBanks.clear();
-    accountTypes.clear();
+    accountTypes.clear(); 
     transactionTypes.clear();
     transactionAmounts.clear();
     transactionFees.clear();
@@ -220,32 +243,59 @@ vector<string>& accountTypes,
 vector<string>& transactionTypes,    
 vector<double>& transactionAmounts,
 vector<double>& transactionFees,
-vector<int>& transactionQuantities) {
+vector<int>& transactionQuantities){
     
     int role;
+    clearScreen();
 
-    cout << "======= WELCOME TO ATM SYSTEM =======" << endl;
-    cout << "[1] Client Menu" << endl;
-    cout << "[2] Admin Menu" << endl;
-    cout << "Select Role: ";
-    cin >> role;
+    do{
+        clearScreen();
+        cout << "======= WELCOME TO ATM SYSTEM =======" << endl;
+        cout << "\n[1] Client Menu";
+        cout << "    [2] Admin Menu\n";
+        cout << "\n            [3] Exit" << endl;
+        cout << "\nSelect Role: ";
+        cin >> role;
 
-    if (role == 1){
-        clientMenu(cardNumbers, encodedPINs, balances,
-        userBanks,accountTypes, transactionTypes, transactionAmounts,
-        transactionFees, transactionQuantities);
+        if (role == 1){
+            clientMenu(cardNumbers, encodedPINs, balances,
+            userBanks,accountTypes, transactionTypes, transactionAmounts,
+            transactionFees, transactionQuantities);
+        }
+        else if (role == 2){
+            string pass;
+
+            cout << "\nEnter Admin Password: ";
+            cin >> pass;
+
+            if(pass == adminPasscode){
+                adminMenu(cardNumbers, encodedPINs,
+                balances, userBanks, accountTypes);
+            }
+            else{
+                cout << "\nWrong Password.\n";
+
+                cout << "\nPress any key to continue: ";
+                string temp;
+                cin >> temp;
+            }
+        }
+        else if (role == 3){
+            clearScreen();
+            typeText("Thank You for using our ATM Machine.\n");
+            typeText("\nCreated by: Panis, Eborde, Ferrer.");
+            return 3;
+        }
+        else {
+            clearScreen();
+            cout << "Invalid Choice!";
+        }
+
     }
-    else if (role == 2){
-        adminMenu(cardNumbers, encodedPINs,
-        balances, userBanks, accountTypes);
-    }
-    else {
-        cout << "Invalid Choice!";
-    }
+    while(role != 3);
 
-
-    
     return role;
+
 }
 
 
@@ -274,6 +324,7 @@ vector<int>& transactionQuantities) {
         }
 
         if(accountIndex == -1){
+            clearScreen();
             cout << "Your card number cannot be found.\n";
             return;
         }
@@ -289,7 +340,7 @@ vector<int>& transactionQuantities) {
     int choice;
 
     do{
-
+            clearScreen();
             cout << "===== CLIENT MENU =====" << endl;
             cout << "Bank: " << userBanks[accountIndex] << endl;
             cout << "Account Type: " << accountTypes[accountIndex] << endl;
@@ -297,7 +348,7 @@ vector<int>& transactionQuantities) {
             
             displayDateTime();
             
-            cout << "1. Check Balance." << endl;
+            cout << "\n1. Check Balance." << endl;
             cout << "2. Withdraw." << endl;
             cout << "3. Transfer." << endl;
             cout << "4. View Transaction History." << endl;
@@ -308,7 +359,7 @@ vector<int>& transactionQuantities) {
             cin >> choice;
 
                 if(choice == 1){
-
+                    clearScreen();
                     cout << "===== BALANCE CHECK PANEL =====\n";
                     cout << "\nBalance: " << balances[accountIndex] << endl;
                     
@@ -321,19 +372,18 @@ vector<int>& transactionQuantities) {
                 }
 
                 if(choice == 2){
-                    
+                    clearScreen();
             
             cout << "===== WITHDRAWAL PANEL =====\n" << endl;
             
             int wdrawAmount1, wdrawAmount2, amount = 0;
             
-            cout << "[1] 500Php" << endl;
-            cout << "[2] 1000Php" << endl;
-            cout << "[3] 5,000Php";
-            cout << "[4] 10,000Php\n";
-            cout << "[5] Enter an Amount." << endl;
-            cout << "===========================" << endl;
-            cout << "Enter your choice (1-5): ";
+            cout << "[1.] 500Php";
+            cout << "      [2.] 1000Php\n";
+            cout << "[3.] 5,000Php";
+            cout << "    [4.] 10,000Php\n";
+            cout << "   [5.] Enter an Amount." << endl;
+            cout << "\nEnter your choice (1-5): ";
             cin >> wdrawAmount1;
             
             
@@ -351,7 +401,8 @@ vector<int>& transactionQuantities) {
     }
     
     if(amount % 500 != 0){
-        cout << "Invalid  Amount. Amount must be divisible by 500";
+        clearScreen();
+        cout << "\nInvalid  Amount. Amount must be divisible by 500";
         continue;
     }
 
@@ -365,7 +416,7 @@ vector<int>& transactionQuantities) {
     }
     
     if(bankIndex == -1){
-        cout << "Bank not recognized.\n";
+        cout << "\nBank not recognized.\n";
         continue;
     }
     
@@ -400,7 +451,7 @@ vector<int>& transactionQuantities) {
     logTransaction(transactionTypes, transactionAmounts, transactionFees,
     transactionQuantities, cardNumbers[accountIndex], "Withdrawal", amount, fee);
 
-
+        clearScreen();
     cout << "Please Wait..." << endl;
     cout << "\nCollect your cash: PHP " << amount << endl;
     cout << "Fee deducted: PHP " << fee << endl;
@@ -422,13 +473,14 @@ vector<int>& transactionQuantities) {
 
 
 
-                if(choice == 3){
+    if(choice == 3){
+    clearScreen();
 
     string receiver;
     double amount;
 
     cout << "===== TRANSFER PANEL =====\n";
-    cout << "Enter receipient card number: ";
+    cout << "\nEnter receipient card number: ";
     cin >> receiver;
 
     int receiverIndex = -1;
@@ -440,11 +492,11 @@ vector<int>& transactionQuantities) {
     }
 
     if(receiverIndex == -1){
-        cout << "Sorry, Recipient not found.\n";
+        cout << "\nSorry, Recipient not found.\n";
         continue;
     }
 
-    cout << "Enter amount to transfer: ";
+    cout << "\nEnter amount to transfer: ";
     cin >> amount;
 
     // Determine fee: local vs international
@@ -463,7 +515,7 @@ vector<int>& transactionQuantities) {
 
     double totalDeduction = amount + fee;
     if(totalDeduction > balances[accountIndex]){
-        cout << "Insufficient balance including transfer fee.\n";
+        cout << "\nInsufficient balance including transfer fee.\n";
         continue;
     }
 
@@ -473,22 +525,28 @@ vector<int>& transactionQuantities) {
     transactionFees, transactionQuantities, cardNumbers[accountIndex], "Transfer", amount, fee);
 
     time_t now = time(0);
+    clearScreen();
     cout << "Transfer successful!\n";
     cout << "Amount: PHP " << amount << endl;
     cout << "Fee: PHP " << fee << endl;
     cout << "Transaction time: " << ctime(&now);
+
+    cout << "\nPress any key to continue: ";
+    string temp;
+    cin >> temp;
 }
 
                 if(choice == 4){
-
+                    clearScreen();
                         cout << "===== VIEWING TRANSACTION HISTORY =====" << endl;
 
                         if(transactionTypes.empty()){
+                            clearScreen();
                             cout << "Oops, you do not have transactions yet.\n";
                         }
 
                         for(int i = 0; i < transactionTypes.size(); i++){
-                            cout << transactionTypes[i] << " | Amount: " << transactionAmounts[i] << " | Fee: " << transactionFees[i] << " | Count: " << transactionQuantities[i] << endl;
+                            cout << "\n" << transactionTypes[i] << " | Amount: " << transactionAmounts[i] << " | Fee: " << transactionFees[i] << " | Count: " << transactionQuantities[i] << endl;
                         }
 
                         cout << "\nPress any key to continue: ";
@@ -498,14 +556,19 @@ vector<int>& transactionQuantities) {
                 }
 
                 if(choice == 5){
-
+                    clearScreen();
                     string oldPIN, newPIN;
 
-                    cout << "Enter your current PIN number: ";
+                    cout << "===== CHANGING PIN NUMBER =====\n";
+                    cout << "\nEnter your current PIN number: ";
                     cin >> oldPIN;
 
-                    if(encodeString(oldPIN) != encodedPINs[accountIndex]){
-                        cout << "Incorrect PIN.\n";
+                    if(!verifyPIN(oldPIN, encodedPINs[accountIndex])){
+                        cout << "\nIncorrect PIN.\n";
+
+                        cout << "\nPress any key to continue: ";
+                        string temp;
+                        cin >> temp;
                         continue;
                     }
 
@@ -516,12 +579,20 @@ vector<int>& transactionQuantities) {
 
                     cout << "\nSuccessfully changed your PIN number.\n";
 
+                    cout << "\nPress any key to continue: ";
+                    string temp;
+                    cin >> temp;
                 }
 
     }while(choice != 6);
+        clearScreen();
+        cout << "Logging you out...\n";
 
-    cout << "Logging you out...\n";
+        cout << "\nPress any key to continue: ";
+        string temp;
+        cin >> temp;
 
+    return;
 }
 
 
@@ -534,8 +605,9 @@ vector<string>& accountTypes) {
     int choice;
     
     do {
+        clearScreen();
         cout << "======== ADMIN MENU ========" << endl;
-        cout << "[1] Add Account" << endl;
+        cout << "\n[1] Add Account" << endl;
         cout << "[2] View Accounts" << endl;
         cout << "[3] Delete/Deactivate Account" << endl;
         cout << "[4] ATM Cash Refill" << endl;
@@ -544,12 +616,13 @@ vector<string>& accountTypes) {
         cout << "[7] View list of Admin Users" << endl;
         cout << "[8] Reset Account Password" << endl;
         cout << "[9] Exit" << endl;
-        cout << "Select Choice: ";
-        cin >> choice;
         cout << "============================" << endl;
+        cout << "\nSelect Choice: ";
+        cin >> choice;
         
         
         if (choice == 1) {
+            clearScreen();
             string card, pin, bank, type;
             double balance;
             
@@ -572,20 +645,21 @@ vector<string>& accountTypes) {
             balances, userBanks, accountTypes,
             card, encodeString(pin), balance, bank, type);
             
-            cout << "Account Added Successfully.\n";
+            cout << "\nAccount Added Successfully.\n";
             
             
         }
         
         else if (choice == 2){
+            clearScreen();
             cout << "======== View Accounts ========" << endl;
             
             if(cardNumbers.empty()) {
-                cout << "No accounts available.\n";
+                cout << "\nNo accounts available.\n";
             }
             else {
                 for(int i = 0; i < cardNumbers.size(); i++){
-                    cout << "Account " << i + 1 << endl;
+                    cout << "\nAccount " << i + 1 << endl;
                     cout << "Card Number: " << cardNumbers[i] << endl;
                     cout << "Bank: " << userBanks[i] << endl;
                     cout << "Account Type: " << accountTypes[i] << endl;
@@ -593,11 +667,15 @@ vector<string>& accountTypes) {
                     cout << "--------------------------" << endl;
                 }
             }
-            
+            cout << "\nPress any key to continue: ";
+            string temp;
+            cin >> temp;
             
         }
         
         else if(choice == 3){
+            clearScreen();
+
             string card;
             cout << "Enter Card Number to delete/deactivate: ";
             cin >> card;
@@ -617,9 +695,15 @@ vector<string>& accountTypes) {
                 }
             }
             if(!found) cout << "Account not found. Try another number\n";
+
+            cout << "\nPress any key to continue: ";
+            string temp;
+            cin >> temp;
         }
         
         else if (choice == 4){
+            clearScreen();
+
             time_t now = time(0);
             tm* localTime = localtime(&now);
 
@@ -636,11 +720,16 @@ vector<string>& accountTypes) {
                 }
                 cout << "ATM Cash Refilled Successfully.\n";
             }
+            cout << "\nPress any key to continue: ";
+            string temp;
+            cin >> temp;
             
             
         }
         
         else if (choice == 5){
+            clearScreen();
+
             cout << "======== ATM STATUS ========\n";
             double totalCash = 0;
             for(int i = 0; i < NUM_DENOMINATIONS; i++){
@@ -649,13 +738,16 @@ vector<string>& accountTypes) {
             }
             cout << "Total Cash in ATM: PHP " << totalCash << endl;
             
+            cout << "\nPress any key to continue: ";
+            string temp;
+            cin >> temp;
             
         }
 
         else if (choice == 6) {
-            string adminPasscode = "6767";
-            string currentPass, newPass;
+            clearScreen();
 
+            string currentPass, newPass;
 
             cout << "Enter Admin Passcode: ";
             cin >> currentPass;
@@ -672,16 +764,26 @@ vector<string>& accountTypes) {
 
                 cout << "Admin Passcode Changed Successfully!" << endl;
             }
+            cout << "\nPress any key to continue: ";
+            string temp;
+            cin >> temp;
         }
 
         else if (choice == 7){
+            clearScreen();
+
             cout << "========= LIST OF ADMIN USERS =========" << endl;
-            for(const auto &admin : adminUsers){
+            for(const auto admin : admin){
                 cout << admin << endl;
             }
+            cout << "\nPress any key to continue: ";
+            string temp;
+            cin >> temp;
         }
 
         else if (choice == 8){
+            clearScreen();
+
             string card;
             cout << "Enter Card Number of Accout to Reset PIN: ";
             cin >> card;
@@ -704,31 +806,15 @@ vector<string>& accountTypes) {
                 encodedPINs[accountIndex] = encodeString(newPIN);
                 cout << "Account PIN  has been reset Successfully!" << endl;
             }
+            cout << "\nPress any key to continue: ";
+            string temp;
+            cin >> temp;
 
         }
 
 
     
     } while (choice != 9);
-    
+
+        cout << "Exiting..." << endl;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
